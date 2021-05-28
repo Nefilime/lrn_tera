@@ -119,6 +119,7 @@ resource "azurerm_virtual_machine" "vm" {
 
   os_profile {
     admin_username = "azroot"
+    computer_name = "${var.prefix}vm"
   }
 
   os_profile_linux_config {
@@ -142,4 +143,32 @@ resource "azurerm_virtual_machine" "vm" {
     version   = "latest"
   }
 
+}
+
+resource "azurerm_linux_virtual_machine" "vm" {
+  name                = "Lin"
+  resource_group_name = azurerm_resource_group.rg.name
+  location            = azurerm_resource_group.rg.location
+  size                = "Standard_B1ls"
+  admin_username      = "azroot"
+  network_interface_ids = [
+    azurerm_network_interface.nic.id,
+  ]
+
+  admin_ssh_key {
+    username   = "azroot"
+    public_key = file("id_rsa.pub")
+  }
+
+  os_disk {
+    caching              = "ReadWrite"
+    storage_account_type = "Standard_LRS"
+  }
+
+  source_image_reference {
+    publisher = "Canonical"
+    offer     = "UbuntuServer"
+    sku       = "20.04-LTS"
+    version   = "latest"
+  }
 }

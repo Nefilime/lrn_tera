@@ -14,10 +14,3 @@ variable "tags" {
     Dept        = "Engineering"
   }
 }
-
-variable "sku" {
-  default = {
-    westus2 = "18.04-LTS"
-    eastus  = "18.04-LTS"
-  }
-}
