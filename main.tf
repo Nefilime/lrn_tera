@@ -48,7 +48,7 @@ variable "resource_group_name" {
 resource "azurerm_resource_group" "rg" {
     name     = "test" {
 
-    }"
+    }
     location = "westus2"
 
     tags = {
