@@ -116,13 +116,17 @@ resource "azurerm_virtual_machine" "vm" {
   network_interface_ids = [azurerm_network_interface.nic.id]
   vm_size               = "Standard_B1ls"
   tags                  = var.tags
-  admin_username      = "azroot"
+
+  os_profile {
+    admin_username = "azroot"
+  }
+
+  os_profile_linux_config {
+    disable_password_authentication = true
+    ssh_keys = file("id_rsa.pub")
+  }
 
 
-  admin_ssh_key {
-      username   = "azroot"
-      public_key = file("id_rsa.pub")
-    }
 
   storage_os_disk {
     name              = "${var.prefix}OsDisk"
