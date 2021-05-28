@@ -1,13 +1,16 @@
-# Configure the Azure provider
+# Configure the Microsoft Azure Provider.
 terraform {
   required_providers {
     azurerm = {
-      source = "hashicorp/azurerm"
+      source  = "hashicorp/azurerm"
       version = ">= 2.26"
     }
   }
 
-required_version = ">= 0.14.9"
+  required_version = ">= 0.14.9"
+}
+
+
 
 /*
 backend "azurerm" {
@@ -21,55 +24,27 @@ backend "azurerm" {
   }
 */
 
-}
-
-provider "azurerm" {
-  features {}
-}
 
 
-
-
-variable "admin_username" {
-    type = string
-    description = "Administrator user name for virtual machine"
-}
-
-variable "admin_password" {
-    type = string
-    description = "Password must meet Azure complexity requirements"
-}
-
-variable "resource_group_name" {
-  default = string
-  description = "Name of resourse group"
-}
-
+# Create a resource group
 resource "azurerm_resource_group" "rg" {
-    name     = "test" {
-
-    }
-    location = "westus2"
-
-    tags = {
-        Environment = "Terraform Getting Started"
-        Team = "DevOps"
-    }
+  name     = "${var.prefix}RG"
+  location = var.location
+  tags     = var.tags
 }
 
-# Create a virtual network
+# Create virtual network
 resource "azurerm_virtual_network" "vnet" {
-    name                = "myTFVnet"
-    address_space       = ["10.0.0.0/16"]
-    location            = "westus2"
-    resource_group_name = azurerm_resource_group.rg.name
+  name                = "${var.prefix}Vnet"
+  address_space       = ["10.0.0.0/16"]
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+  tags                = var.tags
 }
-
-
 
 # Create subnet
 resource "azurerm_subnet" "subnet" {
-  name                 = "myTFSubnet"
+  name                 = "${var.prefix}Subnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.1.0/24"]
@@ -77,19 +52,20 @@ resource "azurerm_subnet" "subnet" {
 
 # Create public IP
 resource "azurerm_public_ip" "publicip" {
-  name                = "myTFPublicIP"
-  location            = "westus2"
+  name                = "${var.prefix}PublicIP"
+  location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
-  allocation_method   = "Static"
-  domain_name_label = "lls2"
+  allocation_method   = "Dynamic"
+  domain_name_label   = "lls2"
+  tags                = var.tags
 }
-
 
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "nsg" {
-  name                = "NSG"
-  location            = "westus2"
+  name                = "${var.prefix}NSG"
+  location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
+  tags                = var.tags
 
   security_rule {
     name                       = "SSH"
@@ -101,20 +77,22 @@ resource "azurerm_network_security_group" "nsg" {
     destination_port_range     = "22"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
-
-    security_rule {
-      name                       = "http"
-      priority                   = 1002
-      direction                  = "Inbound"
-      access                     = "Allow"
-      protocol                   = "Tcp"
-      source_port_range          = "*"
-      destination_port_range     = "80"
-      source_address_prefix      = "*"
-      destination_address_prefix = "*"
+     }
 
 
-      security_rule {
+  security_rule {
+    name                       = "http"
+    priority                   = 1002
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "80"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+       }
+
+  security_rule {
         name                       = "https"
         priority                   = 1003
         direction                  = "Inbound"
@@ -124,19 +102,19 @@ resource "azurerm_network_security_group" "nsg" {
         destination_port_range     = "443"
         source_address_prefix      = "*"
         destination_address_prefix = "*"
+      }
 
-
-  }
 }
 
 # Create network interface
 resource "azurerm_network_interface" "nic" {
-  name                      = "myNIC"
-  location                  = "westus2"
-  resource_group_name       = azurerm_resource_group.rg.name
+  name                = "${var.prefix}NIC"
+  location            = var.location
+  resource_group_name = azurerm_resource_group.rg.name
+  tags                = var.tags
 
   ip_configuration {
-    name                          = "myNICConfg"
+    name                          = "${var.prefix}NICConfg"
     subnet_id                     = azurerm_subnet.subnet.id
     private_ip_address_allocation = "dynamic"
     public_ip_address_id          = azurerm_public_ip.publicip.id
@@ -145,14 +123,15 @@ resource "azurerm_network_interface" "nic" {
 
 # Create a Linux virtual machine
 resource "azurerm_virtual_machine" "vm" {
-  name                  = "myTFVM"
-  location              = "westus2"
+  name                  = "${var.prefix}TFVM"
+  location              = var.location
   resource_group_name   = azurerm_resource_group.rg.name
   network_interface_ids = [azurerm_network_interface.nic.id]
   vm_size               = "Standard_B1ls"
+  tags                  = var.tags
 
   storage_os_disk {
-    name              = "myOsDisk"
+    name              = "${var.prefix}OsDisk"
     caching           = "ReadWrite"
     create_option     = "FromImage"
     managed_disk_type = "Standard_LRS"
@@ -166,7 +145,7 @@ resource "azurerm_virtual_machine" "vm" {
   }
 
   os_profile {
-    computer_name  = "myTFVM"
+    computer_name  = "${var.prefix}TFVM"
     admin_username = var.admin_username
     admin_password = var.admin_password
   }
@@ -174,16 +153,15 @@ resource "azurerm_virtual_machine" "vm" {
   os_profile_linux_config {
     disable_password_authentication = false
   }
+
 }
 
 data "azurerm_public_ip" "ip" {
   name                = azurerm_public_ip.publicip.name
   resource_group_name = azurerm_virtual_machine.vm.resource_group_name
-  depends_on          = [azurerm_virtual_machine.vm]
+  depends_on          = ["azurerm_virtual_machine.vm"]
 }
 
-output "public_ip_address" {
-  value = data.azurerm_public_ip.ip.ip_address
-
-  output "public_ip_address" {
-    value = azurerm_public_ip.publicip.domain_name_label
+output "os_sku" {
+  value = lookup(var.sku, var.location)
+}
