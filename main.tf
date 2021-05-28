@@ -17,7 +17,7 @@ backend "azurerm" {
 
     # rather than defining this inline, the SAS Token can also be sourced
     # from an Environment Variable - more information is available below.
-    access_key = "eeBovdACLlqFSvMkOUNTQXw9R98BvEZC2Kff38OH7Ym4sJYJj80PxJp3oFEEc29fp+NOahiGoRyDZyEvlCN0zw=="
+    access_key = ""
   }
 */
 
