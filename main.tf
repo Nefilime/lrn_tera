@@ -108,43 +108,8 @@ resource "azurerm_network_interface" "nic" {
   }
 }
 
+
 # Create a Linux virtual machine
-resource "azurerm_virtual_machine" "vm" {
-  name                  = "${var.prefix}TFVM"
-  location              = var.location
-  resource_group_name   = azurerm_resource_group.rg.name
-  network_interface_ids = [azurerm_network_interface.nic.id]
-  vm_size               = "Standard_B1ls"
-  tags                  = var.tags
-
-  os_profile {
-    admin_username = "azroot"
-    computer_name = "${var.prefix}vm"
-  }
-
-  os_profile_linux_config {
-    disable_password_authentication = true
-    ssh_keys = file("id_rsa.pub")
-  }
-
-
-
-  storage_os_disk {
-    name              = "${var.prefix}OsDisk"
-    caching           = "ReadWrite"
-    create_option     = "FromImage"
-    managed_disk_type = "Standard_LRS"
-  }
-
-  storage_image_reference {
-    publisher = "Canonical"
-    offer     = "UbuntuServer"
-    sku       = lookup(var.sku, var.location)
-    version   = "latest"
-  }
-
-}
-
 resource "azurerm_linux_virtual_machine" "vm" {
   name                = "Lin"
   resource_group_name = azurerm_resource_group.rg.name
