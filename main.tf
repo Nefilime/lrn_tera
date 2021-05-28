@@ -10,37 +10,20 @@ terraform {
   required_version = ">= 0.14.9"
 }
 
-
-  provider "azurerm" {
+provider "azurerm" {
   features {}
 }
 
-
-
-/*
-backend "azurerm" {
-    storage_account_name = "terraacc"
-    container_name       = "terracontainer"
-    key                  = "prod.terraform.tfstate"
-
-    # rather than defining this inline, the SAS Token can also be sourced
-    # from an Environment Variable - more information is available below.
-    access_key = ""
-  }
-*/
-
-
-
 # Create a resource group
 resource "azurerm_resource_group" "rg" {
-  name     = "${var.prefix}RG"
+  name     = "${var.prefix}TFRG"
   location = var.location
   tags     = var.tags
 }
 
 # Create virtual network
 resource "azurerm_virtual_network" "vnet" {
-  name                = "${var.prefix}Vnet"
+  name                = "${var.prefix}TFVnet"
   address_space       = ["10.0.0.0/16"]
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
@@ -49,7 +32,7 @@ resource "azurerm_virtual_network" "vnet" {
 
 # Create subnet
 resource "azurerm_subnet" "subnet" {
-  name                 = "${var.prefix}Subnet"
+  name                 = "${var.prefix}TFSubnet"
   resource_group_name  = azurerm_resource_group.rg.name
   virtual_network_name = azurerm_virtual_network.vnet.name
   address_prefixes     = ["10.0.1.0/24"]
@@ -57,17 +40,17 @@ resource "azurerm_subnet" "subnet" {
 
 # Create public IP
 resource "azurerm_public_ip" "publicip" {
-  name                = "${var.prefix}PublicIP"
+  name                = "${var.prefix}TFPublicIP"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
   allocation_method   = "Dynamic"
-  domain_name_label   = "lls2"
   tags                = var.tags
+  domain_name_label = "lls2"
 }
 
 # Create Network Security Group and rule
 resource "azurerm_network_security_group" "nsg" {
-  name                = "${var.prefix}NSG"
+  name                = "${var.prefix}TFNSG"
   location            = var.location
   resource_group_name = azurerm_resource_group.rg.name
   tags                = var.tags
@@ -82,8 +65,7 @@ resource "azurerm_network_security_group" "nsg" {
     destination_port_range     = "22"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
-     }
-
+  }
 
   security_rule {
     name                       = "http"
@@ -95,19 +77,19 @@ resource "azurerm_network_security_group" "nsg" {
     destination_port_range     = "80"
     source_address_prefix      = "*"
     destination_address_prefix = "*"
-       }
+  }
 
   security_rule {
-        name                       = "https"
-        priority                   = 1003
-        direction                  = "Inbound"
-        access                     = "Allow"
-        protocol                   = "Tcp"
-        source_port_range          = "*"
-        destination_port_range     = "443"
-        source_address_prefix      = "*"
-        destination_address_prefix = "*"
-      }
+    name                       = "https"
+    priority                   = 1003
+    direction                  = "Inbound"
+    access                     = "Allow"
+    protocol                   = "Tcp"
+    source_port_range          = "*"
+    destination_port_range     = "443"
+    source_address_prefix      = "*"
+    destination_address_prefix = "*"
+  }
 
 }
 
@@ -134,6 +116,13 @@ resource "azurerm_virtual_machine" "vm" {
   network_interface_ids = [azurerm_network_interface.nic.id]
   vm_size               = "Standard_B1ls"
   tags                  = var.tags
+  admin_username      = "azroot"
+
+
+  admin_ssh_key {
+      username   = "azroot"
+      public_key = file("id_rsa.pub")
+    }
 
   storage_os_disk {
     name              = "${var.prefix}OsDisk"
@@ -149,24 +138,4 @@ resource "azurerm_virtual_machine" "vm" {
     version   = "latest"
   }
 
-  os_profile {
-    computer_name  = "${var.prefix}TFVM"
-    admin_username = var.admin_username
-    admin_password = var.admin_password
-  }
-
-  os_profile_linux_config {
-    disable_password_authentication = false
-  }
-
-}
-
-data "azurerm_public_ip" "ip" {
-  name                = azurerm_public_ip.publicip.name
-  resource_group_name = azurerm_virtual_machine.vm.resource_group_name
-  depends_on          = [azurerm_virtual_machine.vm]
-}
-
-output "os_sku" {
-  value = lookup(var.sku, var.location)
 }
