@@ -22,8 +22,8 @@ resource "azurerm_sql_server" "sqlsrv" {
   resource_group_name          = azurerm_resource_group.rg.name
   location                     = "West US 2"
   version                      = "12.0"
-  administrator_login          = "var.user"
-  administrator_login_password = "var.pass"
+  administrator_login          = var.usr
+  administrator_login_password = var.pass
 
   tags = {
     environment = "TestEnv"
