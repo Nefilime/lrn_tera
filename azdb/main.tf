@@ -31,7 +31,7 @@ resource "azurerm_sql_server" "sqlsrv" {
 }
 
 resource "azurerm_storage_account" "stacc" {
-  name                     = "examplesa"
+  name                     = "aztest001"
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"
@@ -54,6 +54,6 @@ resource "azurerm_sql_database" "db" {
 
 
   tags = {
-    environment = "production"
+    environment = "TestEnv"
   }
 }
