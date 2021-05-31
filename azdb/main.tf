@@ -57,3 +57,38 @@ resource "azurerm_sql_database" "db" {
     environment = "TestEnv"
   }
 }
+
+# Create private endpoint
+data "azurerm_resource_group" "ctdev" {
+  name = "ctdev"
+}
+
+data "azurerm_virtual_network" "vnet" {
+  name                = "UbuntusrvVNET"
+  resource_group_name = data.azurerm_resource_group.rg.name
+}
+
+data "azurerm_subnet" "subnet" {
+  name                 = "UbuntusrvSubnet"
+  virtual_network_name = data.azurerm_virtual_network.vnet.name
+  resource_group_name  = data.azurerm_resource_group.ctdev.name
+}
+
+output "subnet_name" {
+  value = data.azurerm_subnet.subnet.id
+}
+
+
+  resource "azurerm_private_endpoint" "example" {
+    name                = "dbendpoint"
+    location            = azurerm_resource_group.rg.location
+    resource_group_name = azurerm_resource_group.rg.name
+    subnet_id           = data.azurerm_subnet.subnet.id
+
+    private_service_connection {
+      name                              = "db"
+      is_manual_connection              = false
+      private_connection_resource_id = azurerm_sql_server.sqlsrv.id
+      subresource_names = "["sqlsrvazsql"]"
+    }
+  }
