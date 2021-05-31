@@ -18,7 +18,7 @@ resource "azurerm_resource_group" "rg" {
 }
 
 resource "azurerm_sql_server" "sqlsrv" {
-  name                         = "myexamplesqlserver"
+  name                         = "sqlsrvazsql"
   resource_group_name          = azurerm_resource_group.rg.name
   location                     = "West US 2"
   version                      = "12.0"
@@ -31,7 +31,7 @@ resource "azurerm_sql_server" "sqlsrv" {
 }
 
 resource "azurerm_storage_account" "stacc" {
-  name                     = "aztest001"
+  name                     = "aztestvv001"
   resource_group_name      = azurerm_resource_group.rg.name
   location                 = azurerm_resource_group.rg.location
   account_tier             = "Standard"
@@ -39,7 +39,7 @@ resource "azurerm_storage_account" "stacc" {
 }
 
 resource "azurerm_sql_database" "db" {
-  name                = "myexamplesqldatabase"
+  name                = "azdb001"
   resource_group_name = azurerm_resource_group.rg.name
   location            = azurerm_resource_group.rg.location
   server_name         = azurerm_sql_server.sqlsrv.name
