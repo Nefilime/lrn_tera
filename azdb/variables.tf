@@ -1,1 +1,3 @@
-variable "login" {}
+variable "usr" {}
+
+variable "pass" {}
