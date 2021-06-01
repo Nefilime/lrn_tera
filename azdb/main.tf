@@ -93,3 +93,17 @@ output "subnet_name" {
       subresource_names = ["sqlServer"]
     }
   }
+
+
+  resource "azurerm_private_dns_zone" "dnszone" {
+    name                = "ct.loc"
+    resource_group_name = data.azurerm_resource_group.ctdev.name
+  }
+
+  resource "azurerm_private_dns_a_record" "example" {
+    name                = "test"
+    zone_name           = azurerm_private_dns_zone.dnszone.name
+    resource_group_name = azurerm_resource_group.ctdev.name
+    ttl                 = 300
+    records             = ["10.0.0.5"]
+  }
