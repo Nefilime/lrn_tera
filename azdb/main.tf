@@ -84,6 +84,7 @@ output "subnet_name" {
     location            = azurerm_resource_group.rg.location
     resource_group_name = azurerm_resource_group.rg.name
     subnet_id           = data.azurerm_subnet.subnet.id
+    depends_on = [azurerm_sql_server.sqlsrv]
 
     private_service_connection {
       name                              = "db"
