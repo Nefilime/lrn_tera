@@ -101,13 +101,14 @@ output "subnet_name" {
   }
 
   resource "azurerm_private_dns_a_record" "example" {
-    name                = "test"
+    name                = "sqlsrvazsql"
     zone_name           = azurerm_private_dns_zone.dnszone.name
     resource_group_name = data.azurerm_resource_group.ctdev.name
     ttl                 = 300
     records             = ["10.0.0.5"]
   }
 
+# Link to private DNS zone
   resource "azurerm_private_dns_zone_virtual_network_link" "linktovnet" {
   name                  = "linkto"
   resource_group_name   = data.azurerm_resource_group.ctdev.name
