@@ -101,7 +101,7 @@ output "subnet_name" {
   }
 
   resource "azurerm_private_dns_a_record" "example" {
-    name                = "sqlsrvazsql"
+    name                = azurerm_sql_server.sqlsrv.name
     zone_name           = azurerm_private_dns_zone.dnszone.name
     resource_group_name = data.azurerm_resource_group.ctdev.name
     ttl                 = 300
