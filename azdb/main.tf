@@ -103,7 +103,7 @@ output "subnet_name" {
   resource "azurerm_private_dns_a_record" "example" {
     name                = "test"
     zone_name           = azurerm_private_dns_zone.dnszone.name
-    resource_group_name = azurerm_resource_group.ctdev.name
+    resource_group_name = data.azurerm_resource_group.ctdev.name
     ttl                 = 300
     records             = ["10.0.0.5"]
   }
