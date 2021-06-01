@@ -90,6 +90,6 @@ output "subnet_name" {
       name                              = "db"
       is_manual_connection              = false
       private_connection_resource_id = azurerm_sql_server.sqlsrv.id
-      subresource_names = ["sqlsrvazsql"]
+      subresource_names = ["sqlServer"]
     }
   }
