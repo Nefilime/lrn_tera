@@ -14,7 +14,7 @@ terraform {
     # from an Environment Variable - more information is available below.
     #access_key = var.key
 }
-
+}
 provider "azurerm" {
   features {}
 }
