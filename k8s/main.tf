@@ -1,12 +1,12 @@
-resource "azurerm_resource_group" "AKS" {
+resource "azurerm_resource_group" "aks" {
   name     = "AKS"
   location = "East US 2"
 }
 
-resource "azurerm_kubernetes_cluster" "AKS01" {
+resource "azurerm_kubernetes_cluster" "aks01" {
   name                = "AKS01"
-  location            = azurerm_resource_group.example.location
-  resource_group_name = azurerm_resource_group.example.name
+  location            = azurerm_resource_group.aks.location
+  resource_group_name = azurerm_resource_group.aks.name
   dns_prefix          = "aks01"
 
   default_node_pool {
@@ -25,9 +25,9 @@ resource "azurerm_kubernetes_cluster" "AKS01" {
 }
 
 output "client_certificate" {
-  value = azurerm_kubernetes_cluster.example.kube_config.0.client_certificate
+  value = azurerm_kubernetes_cluster.aks01.kube_config.0.client_certificate
 }
 
 output "kube_config" {
-  value = azurerm_kubernetes_cluster.example.kube_config_raw
+  value = azurerm_kubernetes_cluster.aks01.kube_config_raw
 }
