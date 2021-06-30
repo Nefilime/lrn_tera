@@ -13,7 +13,7 @@ stages:
 - stage: Validate
   jobs:
     - job: 
-      displayName: Validate Plan
+      displayName: Validate and init Plan
       steps:
       - task: TerraformInstaller@0
         inputs:
@@ -22,7 +22,6 @@ stages:
       - task: CmdLine@2
         inputs:
           script: 'ls -la'
-      
       - task: TerraformTaskV2@2
         inputs:
           provider: 'azurerm'
@@ -33,11 +32,5 @@ stages:
           backendAzureRmStorageAccountName: 'shell21'
           backendAzureRmContainerName: 'terraform'
           backendAzureRmKey: 'terraform.tfstate'
-      - task: TerraformTaskV2@2
-        inputs:
-           provider: 'azurerm'
-           command: 'validate'
-           workingDirectory: '$(System.DefaultWorkingDirectory)\k8s'
-        
 
   #- stage: Deploy
