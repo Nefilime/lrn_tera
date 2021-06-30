@@ -10,14 +10,15 @@ pool:
   vmImage: ubuntu-latest
 
 stages:
-  - stage: Validate
-    jobs:
-    steps:
-    - task: TerraformTaskV2@2
-      inputs:
-        provider: 'azurerm'
-        command: 'validate'
-        workingDirectory: '$(System.DefaultWorkingDirectory)\k8s'
+- stage: Validate
+  jobs:
+    - job: 
+      steps:
+      - task: TerraformTaskV2@2
+        inputs:
+           provider: 'azurerm'
+           command: 'validate'
+           workingDirectory: '$(System.DefaultWorkingDirectory)\k8s'
         
 
   #- stage: Deploy
