@@ -15,9 +15,9 @@ stages:
     - job: 
       displayName: Validate Plan
       steps:
-      - task: TerraformInstaller@0
-        inputs:
-          terraformVersion: '1.0.1'
+      #- task: TerraformInstaller@0
+       # inputs:
+        #  terraformVersion: '1.0.1'
       - task: CmdLine@2
         inputs:
           script: 'ls -la'
