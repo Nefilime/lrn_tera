@@ -1,0 +1,42 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+trigger:
+- main
+
+pool:
+  vmImage: ubuntu-latest
+
+stages:
+- stage: Validate
+  jobs:
+    - job: 
+      displayName: Validate Plan
+      steps:
+      - task: TerraformInstaller@0
+        inputs:
+          terraformVersion: '1.0.1'
+      - task: CmdLine@2
+        inputs:
+          script: 'ls -la'
+      
+      - task: TerraformTaskV2@2
+        inputs:
+          provider: 'azurerm'
+          command: 'init'
+          workingDirectory: '$(System.DefaultWorkingDirectory)\k8s'
+          backendServiceArm: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
+          backendAzureRmResourceGroupName: 'shell21'
+          backendAzureRmStorageAccountName: 'shell21'
+          backendAzureRmContainerName: 'terraform'
+          backendAzureRmKey: 'terraform.tfstate'
+      - task: TerraformTaskV2@2
+        inputs:
+           provider: 'azurerm'
+           command: 'validate'
+           workingDirectory: '$(System.DefaultWorkingDirectory)\k8s'
+        
+
+  #- stage: Deploy
