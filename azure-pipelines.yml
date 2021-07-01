@@ -18,11 +18,12 @@ stages:
       displayName: init & plan Terraform
       steps:
       - task: TerraformInstaller@0
+        displayName: Install terraform
         inputs:
           terraformVersion: '1.0.0'
           
       - task: CmdLine@2
-        displayName: ll
+        displayName: List work dir
         inputs:
           script: 'ls -la'
       - task: TerraformTaskV2@2
@@ -45,6 +46,11 @@ stages:
           workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
           commandOptions: '-lock=false'
           environmentServiceNameAzureRM: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
+      - task: TerraformTaskV2@2
+        inputs:
+          provider: 'azurerm'
+          command: 'validate'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
 
 - stage: Deploy
   jobs:
