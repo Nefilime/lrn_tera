@@ -3,8 +3,8 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-trigger:
-- main
+#trigger:
+#- main
 
 pool:
   vmImage: ubuntu-18.04
@@ -15,13 +15,31 @@ stages:
   displayName: Terraform Destroy
   jobs:
     - job:
-    
+      
+      steps:
+        
+        - task: TerraformInstaller@0
+          displayName: Install terraform
+          inputs:
+           terraformVersion: '1.0.0'
+        
+        
+        - task: TerraformTaskV2@2
+          displayName: Terraform init
+          inputs:
+            provider: 'azurerm'
+            command: 'init'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+            backendServiceArm: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
+            backendAzureRmResourceGroupName: 'shell21'
+            backendAzureRmStorageAccountName: 'shell21'
+            backendAzureRmContainerName: 'terraform'
+            backendAzureRmKey: 'terraform.tfstate'
 
-steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
-
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+        - task: TerraformTaskV2@2
+          displayName: Terraform Destroy
+          inputs:
+            provider: 'azurerm'
+            command: 'destroy'
+            workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+            environmentServiceNameAzureRM: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
