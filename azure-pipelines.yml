@@ -13,6 +13,7 @@ pool:
 
 stages:
 - stage: Preparation
+  displayName: Validation and Preparation Terraform
   jobs:
     - job: 
       displayName: init & plan Terraform
@@ -53,10 +54,28 @@ stages:
           workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
 
 - stage: Deploy
+  displayName: Deploy Infrastructure
   jobs:
     - job:
       displayName: Terraform Apply
       steps:
+        - task: TerraformInstaller@0
+          displayName: Install terraform
+          inputs:
+           terraformVersion: '1.0.0'
+
+        - task: TerraformTaskV2@2
+          displayName: Terraform Init
+          inputs:
+           provider: 'azurerm'
+           command: 'init'
+           workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+           backendServiceArm: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
+           backendAzureRmResourceGroupName: 'shell21'
+           backendAzureRmStorageAccountName: 'shell21'
+           backendAzureRmContainerName: 'terraform'
+           backendAzureRmKey: 'terraform.tfstate'
+
         - task: TerraformTaskV2@2
           displayName: Validate and Apply
           inputs:
