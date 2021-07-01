@@ -53,7 +53,7 @@ stages:
           command: 'validate'
           workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
 
-- stage: Deploy
+- stage: Deploy_terra
   displayName: Deploy Infrastructure
   jobs:
     - job:
@@ -83,7 +83,7 @@ stages:
             command: 'apply'
             workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
             environmentServiceNameAzureRM: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
-- stage: Deploy
+- stage: Deploy_grafa
   displayName: Deploy Grafana
   jobs:
     - job:
