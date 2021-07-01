@@ -12,10 +12,10 @@ pool:
   vmImage: ubuntu-18.04
 
 stages:
-- stage: Validate
+- stage: Preparation
   jobs:
     - job: 
-      displayName: Validate and init Plan
+      displayName: init & plan Terraform
       steps:
       - task: TerraformInstaller@0
         inputs:
@@ -46,4 +46,15 @@ stages:
           commandOptions: '-lock=false'
           environmentServiceNameAzureRM: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
 
-  #- stage: Deploy
+- stage: Deploy
+  jobs:
+    - job:
+      displayName: Terraform Apply
+      steps:
+        - task: TerraformTaskV2@2
+          displayName: Validate and Apply
+          inputs:
+            provider: 'azurerm'
+            command: 'apply'
+            environmentServiceNameAzureRM: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
+
