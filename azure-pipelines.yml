@@ -3,11 +3,13 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-trigger:
-- main
+#trigger:
+#- main
+
+
 
 pool:
-  vmImage: ubuntu-latest
+  vmImage: ubuntu-18.04
 
 stages:
 - stage: Validate
@@ -20,9 +22,11 @@ stages:
           terraformVersion: '1.0.0'
           
       - task: CmdLine@2
+        displayName: ll
         inputs:
           script: 'ls -la'
       - task: TerraformTaskV2@2
+        displayName: Terraform Init
         inputs:
           provider: 'azurerm'
           command: 'init'
@@ -32,5 +36,14 @@ stages:
           backendAzureRmStorageAccountName: 'shell21'
           backendAzureRmContainerName: 'terraform'
           backendAzureRmKey: 'terraform.tfstate'
+
+      - task: TerraformTaskV2@2
+        displayName: Terraform Plan
+        inputs:
+          provider: 'azurerm'
+          command: 'plan'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+          commandOptions: '-out=tfPlan'
+          environmentServiceNameAzureRM: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
 
   #- stage: Deploy
