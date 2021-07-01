@@ -43,7 +43,6 @@ stages:
           provider: 'azurerm'
           command: 'plan'
           workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
-          commandOptions: '-out=tfPlan'
           environmentServiceNameAzureRM: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
 
   #- stage: Deploy
