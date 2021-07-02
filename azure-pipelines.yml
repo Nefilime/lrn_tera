@@ -86,10 +86,13 @@ stages:
         - task: Bash@3
           inputs:
             targetType: 'inline'
-            script: 'KUBE_CONF=$(/opt/hostedtoolcache/terraform/1.0.0/x64/terraform output kube_config)'
+            script: |
+              KUBE_CONF=$(/opt/hostedtoolcache/terraform/1.0.0/x64/terraform output kube_config)
+              echo $KUBE_CONF
             workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
             noProfile: false
             noRc: false
+          
         
 - stage: Deploy_grafa
   displayName: Deploy Grafana
