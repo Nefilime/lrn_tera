@@ -131,10 +131,10 @@ stages:
               
             workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
 
-       - task: KubectlInstaller@0
-         displayName: Install Kubectl
+       - task: HelmInstaller@0
          inputs:
-           kubectlVersion: 'latest'
+           helmVersion: '2.14.1'
+           installKubectl: true
       
        - task: Kubernetes@1
          displayName: Applay nginx-controller
@@ -153,3 +153,18 @@ stages:
            arguments: 'ns grafana'
            secretType: 'dockerRegistry'
            containerRegistryType: 'Azure Container Registry'
+
+       - task: Bash@3
+         displayName: Add Grafana repo
+         inputs:
+          targetType: 'inline'
+          script: |
+            /opt/hostedtoolcache/helm/3.6.2/x64/linux-amd64/helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+            
+            helm repo update
+      
+       - task: Bash@3
+         inputs:
+          targetType: 'inline'
+          script: 'helm install prometheus prometheus-community/kube-prometheus-stack -f custom_values_grafana.yaml --namespace grafana'
+          workingDirectory: '$(System.DefaultWorkingDirectory)/k8s/graf'
