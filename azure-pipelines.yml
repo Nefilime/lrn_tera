@@ -163,9 +163,13 @@ stages:
             
             helm repo update
       
-       - task: Bash@3
+       - task: HelmDeploy@0
          displayName: Install Grafana
          inputs:
-          targetType: 'inline'
-          script: 'helm install prometheus prometheus-community/kube-prometheus-stack -f custom_values_grafana.yaml --namespace grafana'
-          workingDirectory: '$(System.DefaultWorkingDirectory)/k8s/graf'
+           connectionType: 'None'
+           namespace: 'grafana'
+           command: 'install'
+           chartType: 'Name'
+           chartName: 'prometheus-community/kube-prometheus-stack'
+           releaseName: 'prometheus'
+           valueFile: '$(System.DefaultWorkingDirectory)/k8s/graf/custom_values_grafana.yaml'
