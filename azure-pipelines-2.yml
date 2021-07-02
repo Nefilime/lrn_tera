@@ -44,7 +44,8 @@ steps:
   inputs:
             targetType: 'inline'
             script: |
-              /opt/hostedtoolcache/terraform/1.0.0/x64/terraform output -raw kube_config > config
+              mkdir %HOME/.kube
+              /opt/hostedtoolcache/terraform/1.0.0/x64/terraform output -raw kube_config > %HOME/.kube/config
               
-              cat config
+              
             workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
