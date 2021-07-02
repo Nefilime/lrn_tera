@@ -1,0 +1,69 @@
+# Starter pipeline
+# Start with a minimal pipeline that you can customize to build and deploy your code.
+# Add steps that build, run tests, deploy, and more:
+# https://aka.ms/yaml
+
+#trigger:
+#- main
+
+pool:
+  vmImage: ubuntu-latest
+
+steps:
+- task: KubectlInstaller@0
+  inputs:
+           kubectlVersion: 'latest'
+
+- task: Bash@3
+  inputs:
+            targetType: 'inline'
+            script: |
+              echo $HOME
+              cd $HOME
+              pwd
+
+- task: TerraformInstaller@0
+  displayName: Install terraform
+  inputs:
+           terraformVersion: '1.0.0'
+        
+- task: TerraformTaskV2@2
+  displayName: Terraform Init
+  inputs:
+           provider: 'azurerm'
+           command: 'init'
+           workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+           backendServiceArm: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
+           backendAzureRmResourceGroupName: 'shell21'
+           backendAzureRmStorageAccountName: 'shell21'
+           backendAzureRmContainerName: 'terraform'
+           backendAzureRmKey: 'terraform.tfstate'
+           
+- task: Bash@3
+  displayName: Get kubernetes config
+  inputs:
+            targetType: 'inline'
+            script: |
+              mkdir $HOME/.kube
+              /opt/hostedtoolcache/terraform/1.0.0/x64/terraform output -raw kube_config > $HOME/.kube/config
+              
+              
+            workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+
+- task: Kubernetes@1
+  inputs:
+    connectionType: 'None'
+    command: 'get'
+    arguments: 'nodes'
+    secretType: 'dockerRegistry'
+    containerRegistryType: 'Azure Container Registry'
+
+- task: HelmInstaller@0
+  inputs:
+    helmVersion: '2.14.1'
+    installKubectl: true
+
+- task: HelmDeploy@0
+  inputs:
+    connectionType: 'None'
+    command: 'ls'
