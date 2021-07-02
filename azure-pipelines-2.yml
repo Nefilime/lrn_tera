@@ -3,17 +3,48 @@
 # Add steps that build, run tests, deploy, and more:
 # https://aka.ms/yaml
 
-trigger:
-- main
+#trigger:
+#- main
 
 pool:
   vmImage: ubuntu-latest
 
 steps:
-- script: echo Hello, world!
-  displayName: 'Run a one-line script'
+- task: KubectlInstaller@0
+  inputs:
+           kubectlVersion: 'latest'
 
-- script: |
-    echo Add other tasks to build, test, and deploy your project.
-    echo See https://aka.ms/yaml
-  displayName: 'Run a multi-line script'
+- task: Bash@3
+  inputs:
+            targetType: 'inline'
+            script: |
+              echo $HOME
+              cd $HOME
+              pwd
+
+- task: TerraformInstaller@0
+  displayName: Install terraform
+  inputs:
+           terraformVersion: '1.0.0'
+        
+- task: TerraformTaskV2@2
+  displayName: Terraform Init
+  inputs:
+           provider: 'azurerm'
+           command: 'init'
+           workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+           backendServiceArm: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
+           backendAzureRmResourceGroupName: 'shell21'
+           backendAzureRmStorageAccountName: 'shell21'
+           backendAzureRmContainerName: 'terraform'
+           backendAzureRmKey: 'terraform.tfstate'
+           
+- task: Bash@3
+  displayName: Get kubernetes config
+  inputs:
+            targetType: 'inline'
+            script: |
+              /opt/hostedtoolcache/terraform/1.0.0/x64/terraform output -raw kube_config > config
+              
+              cat config
+            workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
