@@ -44,8 +44,16 @@ steps:
   inputs:
             targetType: 'inline'
             script: |
-              mkdir %HOME/.kube
-              /opt/hostedtoolcache/terraform/1.0.0/x64/terraform output -raw kube_config > %HOME/.kube/config
+              mkdir $HOME/.kube
+              /opt/hostedtoolcache/terraform/1.0.0/x64/terraform output -raw kube_config > $HOME/.kube/config
               
               
             workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+
+- task: Kubernetes@1
+  inputs:
+    connectionType: 'None'
+    command: 'get'
+    arguments: 'nodes'
+    secretType: 'dockerRegistry'
+    containerRegistryType: 'Azure Container Registry'
