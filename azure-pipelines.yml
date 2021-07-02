@@ -123,4 +123,12 @@ stages:
            backendAzureRmContainerName: 'terraform'
            backendAzureRmKey: 'terraform.tfstate'
            
-        
+        - task: Bash@3
+          displayName: Get kubernetes config
+          inputs:
+            targetType: 'inline'
+            script: |
+              /opt/hostedtoolcache/terraform/1.0.0/x64/terraform output -raw kube_config > config
+              
+              cat config
+            workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
