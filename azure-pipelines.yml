@@ -87,8 +87,9 @@ stages:
           inputs:
             targetType: 'inline'
             script: |
-              KUBE_CONF=$(/opt/hostedtoolcache/terraform/1.0.0/x64/terraform output kube_config)
+              export KUBE_CONF=$(/opt/hostedtoolcache/terraform/1.0.0/x64/terraform output -raw kube_config)
               echo $KUBE_CONF
+              
             workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
             noProfile: false
             noRc: false
