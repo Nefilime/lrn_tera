@@ -88,18 +88,19 @@ stages:
             targetType: 'inline'
             script: |
               export KUBE_CONF=$(/opt/hostedtoolcache/terraform/1.0.0/x64/terraform output -raw kube_config)
-              echo $KUBE_CONF
-              
+              echo $KUBE_CONF  
             workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
             noProfile: false
             noRc: false
-          
+          name: ProduceVar
         
 - stage: Deploy_grafa
   displayName: Deploy Grafana
   jobs:
     - job:
       displayName: Get Credentials
+      
+       
       steps:
         - task: Bash@3
           inputs:
