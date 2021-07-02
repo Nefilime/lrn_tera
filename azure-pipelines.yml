@@ -164,6 +164,7 @@ stages:
             helm repo update
       
        - task: Bash@3
+         displayName: Install Grafana
          inputs:
           targetType: 'inline'
           script: 'helm install prometheus prometheus-community/kube-prometheus-stack -f custom_values_grafana.yaml --namespace grafana'
