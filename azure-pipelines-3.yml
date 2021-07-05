@@ -156,6 +156,7 @@ stages:
                            "kubernetes.io/os": linux
            
            EOF
+           exit 0
            
 
     - task: Kubernetes@1
