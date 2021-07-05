@@ -139,7 +139,7 @@ stages:
 
     - task: Delay@1
       inputs:
-        delayForMinutes: '0.5'
+        delayForMinutes: '1'
     - task: HelmDeploy@0
       displayName: Install Grafana
       inputs:
