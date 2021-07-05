@@ -201,6 +201,4 @@ stages:
               - hosts:
                   - akscluster.eastus2.cloudapp.azure.com
             secretName: tls-secret
-        EOF
-        noProfile: false
-        noRc: false
+          EOF
