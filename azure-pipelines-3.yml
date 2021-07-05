@@ -193,7 +193,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          kubectl patch -n grafana ingress prometheus-grafana --patch $(cat <<EOF
+          cat <<EOF | kubectl patch -n grafana ingress prometheus-grafana --patch -
           annotations:
               cert-manager.io/cluster-issuer: letsencrypt
           spec:
@@ -202,6 +202,5 @@ stages:
                   - akscluster.eastus2.cloudapp.azure.com
             secretName: tls-secret
         EOF
-        )
         noProfile: false
         noRc: false
