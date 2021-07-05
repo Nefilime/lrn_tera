@@ -67,14 +67,7 @@ stages:
         command: 'apply'
         workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
         environmentServiceNameAzureRM: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
-    - task: Bash@3
-      inputs:
-        targetType: 'inline'
-        script: "export KUBE_CONF=$(/opt/hostedtoolcache/terraform/1.0.0/x64/terraform output -raw kube_config)\necho $KUBE_CONF  \n"
-        workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
-        noProfile: false
-        noRc: false
-      name: ProduceVar
+
 - stage: Deploy_grafa
   displayName: Deploy Grafana
   jobs:
@@ -141,6 +134,7 @@ stages:
              --set webhook.nodeSelector."kubernetes\.io/os"=linux \
              --set cainjector.nodeSelector."kubernetes\.io/os"=linux
            
+           sleep 20
            cat <<EOF | kubectl apply -f -
            apiVersion: cert-manager.io/v1
            kind: ClusterIssuer
@@ -163,16 +157,6 @@ stages:
            
            EOF
            
-           kubectl patch -n grafana ingress prometheus-grafana --patch $(cat <<EOF
-           annotations:
-               cert-manager.io/cluster-issuer: letsencrypt
-           spec:
-           tls:
-            - hosts:
-             - akscluster.eastus2.cloudapp.azure.com
-              secretName: tls-secret
-           EOF
-           )
 
     - task: Kubernetes@1
       displayName: Create NameSpace grafana
@@ -201,3 +185,20 @@ stages:
         releaseName: 'prometheus'
         valueFile: '$(System.DefaultWorkingDirectory)/k8s/graf/custom_values_grafana.yaml'
 
+    - task: Bash@3
+      displayName: Patch Ingress route
+      inputs:
+        targetType: 'inline'
+        script: |
+          kubectl patch -n grafana ingress prometheus-grafana --patch $(cat <<EOF
+                     annotations:
+                         cert-manager.io/cluster-issuer: letsencrypt
+                     spec:
+                     tls:
+                      - hosts:
+                       - akscluster.eastus2.cloudapp.azure.com
+                        secretName: tls-secret
+                     EOF
+                     )
+        noProfile: false
+        noRc: false
