@@ -137,9 +137,11 @@ stages:
           sleep 40
           helm repo update
 
-    - task: Delay@1
+    - task: Bash@3
+      displayName: sleep
       inputs:
-        delayForMinutes: '1'
+        targetType: 'inline'
+        script: 'sleep 30'
     - task: HelmDeploy@0
       displayName: Install Grafana
       inputs:
