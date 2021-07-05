@@ -166,7 +166,6 @@ stages:
              --set cainjector.nodeSelector."kubernetes\.io/os"=linux
            
            
-           sleep 20
            cat <<EOF | kubectl apply -f -
            apiVersion: cert-manager.io/v1
            kind: ClusterIssuer
