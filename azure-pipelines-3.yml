@@ -136,6 +136,7 @@ stages:
           /opt/hostedtoolcache/helm/3.6.2/x64/linux-amd64/helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
 
           helm repo update
+          sleep 30
     - task: HelmDeploy@0
       displayName: Install Grafana
       inputs:
