@@ -137,13 +137,21 @@ stages:
            installKubectl: true
       
        - task: Kubernetes@1
-         displayName: Applay nginx-controller
+         displayName: Applay nginx-ingress-controller
          inputs:
            connectionType: 'None'
            command: 'apply'
            arguments: '-f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.47.0/deploy/static/provider/cloud/deploy.yaml'
            secretType: 'dockerRegistry'
            containerRegistryType: 'Azure Container Registry'
+      
+       - task: Bash@3
+         displayName: Add annotate to nginx-ingress-controller service
+         inputs:
+          targetType: 'inline'
+          script: '/opt/hostedtoolcache/kubectl/1.21.2/x64/kubectl annotate service -n ingress-nginx ingress-nginx-controller service.beta.kubernetes.io/azure-dns-label-name=akscluster'
+          noProfile: false
+          noRc: false
       
        - task: Kubernetes@1
          displayName: Create NameSpace grafana
