@@ -134,6 +134,7 @@ stages:
              --set webhook.nodeSelector."kubernetes\.io/os"=linux \
              --set cainjector.nodeSelector."kubernetes\.io/os"=linux
            
+           set -e
            sleep 20
            cat <<EOF | kubectl apply -f -
            apiVersion: cert-manager.io/v1
@@ -156,7 +157,6 @@ stages:
                            "kubernetes.io/os": linux
            
            EOF
-           exit 0
            
 
     - task: Kubernetes@1
