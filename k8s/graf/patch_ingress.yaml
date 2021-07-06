@@ -1,4 +1,5 @@
-annotations:
+metadata:
+ annotations:
    cert-manager.io/cluster-issuer: letsencrypt
 spec:
    tls:
