@@ -153,11 +153,7 @@ stages:
         releaseName: 'prometheus'
         valueFile: '$(System.DefaultWorkingDirectory)/k8s/graf/custom_values_grafana.yaml'
 
-    - task: Bash@3
-      displayName: sleep
-      inputs:
-        targetType: 'inline'
-        script: 'sleep 60'
+
 
     - task: Bash@3
       displayName: Add Cert Magaer and patch ingress resource
