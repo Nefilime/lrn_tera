@@ -206,13 +206,5 @@ stages:
       displayName: Patch Ingress route
       inputs:
         targetType: 'inline'
-        script: |
-          cat <<EOF | kubectl patch -n grafana ingress prometheus-grafana --patch -
-          annotations:
-              cert-manager.io/cluster-issuer: letsencrypt
-          spec:
-            tls:
-            - hosts:
-                - akscluster.eastus2.cloudapp.azure.com
-              secretName: tls-secret
-          EOF
+        script: 'kubectl patch -n grafana ingress prometheus-grafana --patch $(cat patch_ingress.yaml)'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/k8s/graf/'
