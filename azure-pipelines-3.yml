@@ -141,12 +141,12 @@ stages:
       inputs:
         connectionType: 'None'
         namespace: 'grafana'
-        command: 'install'
+        command: 'upgrade'
         chartType: 'Name'
         chartName: 'prometheus-community/kube-prometheus-stack'
         releaseName: 'prometheus'
         valueFile: '$(System.DefaultWorkingDirectory)/k8s/graf/custom_values_grafana.yaml'
-        arguments: '--timeout 400'
+        arguments: '---timeout 400'
 
 
 
