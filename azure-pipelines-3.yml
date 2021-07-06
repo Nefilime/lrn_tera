@@ -157,7 +157,7 @@ stages:
       displayName: sleep
       inputs:
         targetType: 'inline'
-        script: 'sleep 40'
+        script: 'sleep 60'
 
     - task: Bash@3
       displayName: Add Cert Magaer and patch ingress resource
