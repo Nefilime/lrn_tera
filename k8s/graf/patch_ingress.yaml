@@ -1,0 +1,7 @@
+annotations:
+   cert-manager.io/cluster-issuer: letsencrypt
+spec:
+   tls:
+     - hosts:
+          - akscluster.eastus2.cloudapp.azure.com
+       secretName: tls-secret
