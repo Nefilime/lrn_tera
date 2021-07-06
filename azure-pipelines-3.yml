@@ -178,7 +178,8 @@ stages:
              --set webhook.nodeSelector."kubernetes\.io/os"=linux \
              --set cainjector.nodeSelector."kubernetes\.io/os"=linux
            
-           
+           sleep 30
+
            cat <<EOF | kubectl apply -f -
            apiVersion: cert-manager.io/v1
            kind: ClusterIssuer
