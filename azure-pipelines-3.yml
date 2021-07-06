@@ -146,7 +146,7 @@ stages:
         chartName: 'prometheus-community/kube-prometheus-stack'
         releaseName: 'prometheus'
         valueFile: '$(System.DefaultWorkingDirectory)/k8s/graf/custom_values_grafana.yaml'
-        arguments: '--install --timeout 400'
+        arguments: '--timeout 400'
 
 
 
