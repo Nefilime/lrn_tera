@@ -134,14 +134,14 @@ stages:
         targetType: 'inline'
         script: |
           /opt/hostedtoolcache/helm/3.6.2/x64/linux-amd64/helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
-          sleep 40
           helm repo update
 
     - task: Bash@3
       displayName: sleep
       inputs:
         targetType: 'inline'
-        script: 'sleep 30'
+        script: 'sleep 10'
+
     - task: HelmDeploy@0
       displayName: Install Grafana
       inputs:
@@ -152,6 +152,12 @@ stages:
         chartName: 'prometheus-community/kube-prometheus-stack'
         releaseName: 'prometheus'
         valueFile: '$(System.DefaultWorkingDirectory)/k8s/graf/custom_values_grafana.yaml'
+
+    - task: Bash@3
+      displayName: sleep
+      inputs:
+        targetType: 'inline'
+        script: 'sleep 40'
 
     - task: Bash@3
       displayName: Add Cert Magaer and patch ingress resource
