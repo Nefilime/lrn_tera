@@ -136,12 +136,6 @@ stages:
           /opt/hostedtoolcache/helm/3.6.2/x64/linux-amd64/helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo update
 
-    - task: Bash@3
-      displayName: sleep
-      inputs:
-        targetType: 'inline'
-        script: 'sleep 10'
-
     - task: HelmDeploy@0
       displayName: Install Grafana
       inputs:
@@ -174,7 +168,7 @@ stages:
              --set webhook.nodeSelector."kubernetes\.io/os"=linux \
              --set cainjector.nodeSelector."kubernetes\.io/os"=linux
            
-           sleep 50
+           sleep 30
 
            cat <<EOF | kubectl apply -f -
            apiVersion: cert-manager.io/v1
