@@ -166,9 +166,10 @@ stages:
              --set installCRDs=true \
              --set nodeSelector."kubernetes\.io/os"=linux \
              --set webhook.nodeSelector."kubernetes\.io/os"=linux \
-             --set cainjector.nodeSelector."kubernetes\.io/os"=linux
+             --set cainjector.nodeSelector."kubernetes\.io/os"=linux \
+             --wait
            
-           sleep 30
+           
 
            cat <<EOF | kubectl apply -f -
            apiVersion: cert-manager.io/v1
