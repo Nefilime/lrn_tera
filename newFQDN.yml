@@ -107,6 +107,12 @@ stages:
         secretType: 'dockerRegistry'
         containerRegistryType: 'Azure Container Registry'
         outputFormat: 'none'
+      
+    - task: Bash@3
+      displayName: Wait ingress start
+      inputs:
+        targetType: 'inline'
+        script: 'kubectl wait -n ingress-nginx deploy/ingress-nginx-controller --for condition=available'
     - task: Bash@3
       displayName: Add annotate to nginx-ingress-controller service
       inputs:
