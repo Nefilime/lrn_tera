@@ -185,7 +185,7 @@ stages:
              --set cainjector.nodeSelector."kubernetes\.io/os"=linux \
              --wait --timeout 10m
 
-
+           kubectl wait -n ingress-nginx deploy/cert-manager-webhook --for condition=available --timeout=60s
 
            cat <<EOF | kubectl apply -f -
            apiVersion: cert-manager.io/v1
