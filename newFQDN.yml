@@ -103,7 +103,7 @@ stages:
       inputs:
         connectionType: 'None'
         command: 'apply'
-        arguments: '-f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.47.0/deploy/static/provider/cloud/deploy.yaml --wait true'
+        arguments: '-f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.47.0/deploy/static/provider/cloud/deploy.yaml --wait=true'
         secretType: 'dockerRegistry'
         containerRegistryType: 'Azure Container Registry'
         outputFormat: 'none'
