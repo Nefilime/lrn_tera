@@ -109,6 +109,7 @@ stages:
         arguments: '-f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.47.0/deploy/static/provider/cloud/deploy.yaml'
         secretType: 'dockerRegistry'
         containerRegistryType: 'Azure Container Registry'
+        outputFormat: 'yaml'
     - task: Bash@3
       displayName: Add annotate to nginx-ingress-controller service
       inputs:
@@ -146,7 +147,7 @@ stages:
         chartName: 'prometheus-community/kube-prometheus-stack'
         releaseName: 'prometheus'
         valueFile: '$(System.DefaultWorkingDirectory)/k8s/graf/custom_values_grafana.yaml'
-        arguments: '--timeout 400'
+        arguments: '--timeout 10m'
 
 
 
@@ -168,7 +169,7 @@ stages:
              --set nodeSelector."kubernetes\.io/os"=linux \
              --set webhook.nodeSelector."kubernetes\.io/os"=linux \
              --set cainjector.nodeSelector."kubernetes\.io/os"=linux \
-             --wait --timeout 400
+             --wait --timeout 10m
            
            
 
