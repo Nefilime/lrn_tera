@@ -11,7 +11,7 @@ stages:
       displayName: Install terraform
       inputs:
         terraformVersion: '1.0.0'
-    
+
     - task: TerraformTaskV2@2
       displayName: Terraform Init
       inputs:
@@ -107,7 +107,7 @@ stages:
         secretType: 'dockerRegistry'
         containerRegistryType: 'Azure Container Registry'
         outputFormat: 'none'
-      
+
     - task: Bash@3
       displayName: Wait ingress start
       inputs:
@@ -120,9 +120,9 @@ stages:
         script: '/opt/hostedtoolcache/kubectl/1.21.2/x64/kubectl annotate service -n ingress-nginx ingress-nginx-controller service.beta.kubernetes.io/azure-dns-label-name=akscluster'
         noProfile: false
         noRc: false
-    
-    
-           
+
+
+
 
     - task: Kubernetes@1
       displayName: Create NameSpace grafana
@@ -159,9 +159,9 @@ stages:
         scriptLocation: 'inlineScript'
         inlineScript: |
           #!/bin/bash
-          
+
           export IP=$(kubectl get ingress -n grafana prometheus-grafana -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
-          
+
           az network dns record-set a delete --resource-group shell21 --zone-name vv.devops4.fun --name aks -y
           az network dns record-set a add-record --resource-group shell21 --zone-name vv.devops4.fun --record-set-name aks --ipv4-address $IP
 
@@ -171,12 +171,12 @@ stages:
          targetType: 'inline'
          script: |
            helm repo add jetstack https://charts.jetstack.io
-           
+
            helm repo update
 
-    
-           
-           
+
+
+
            helm install cert-manager jetstack/cert-manager \
              --namespace ingress-nginx \
              --set installCRDs=true \
@@ -184,8 +184,8 @@ stages:
              --set webhook.nodeSelector."kubernetes\.io/os"=linux \
              --set cainjector.nodeSelector."kubernetes\.io/os"=linux \
              --wait --timeout 10m
-           
-           
+
+
 
            cat <<EOF | kubectl apply -f -
            apiVersion: cert-manager.io/v1
@@ -194,7 +194,7 @@ stages:
              name: letsencrypt
            spec:
              acme:
-               server: https://acme-v02.api.letsencrypt.org/directory
+               server: https://acme-staging-v02.api.letsencrypt.org/directory
                email: woolfix@mail.ru
                privateKeySecretRef:
                  name: letsencrypt
@@ -206,7 +206,7 @@ stages:
                        spec:
                          nodeSelector:
                            "kubernetes.io/os": linux
-           
+
            EOF
 
     - task: Bash@3
