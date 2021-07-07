@@ -1,0 +1,8 @@
+metadata:
+ annotations:
+   cert-manager.io/cluster-issuer: letsencrypt
+spec:
+   tls:
+     - hosts:
+          - aks.vv.devops4.fun
+       secretName: tls-secret
