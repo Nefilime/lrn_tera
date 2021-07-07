@@ -11,10 +11,7 @@ stages:
       displayName: Install terraform
       inputs:
         terraformVersion: '1.0.0'
-    - task: CmdLine@2
-      displayName: List work dir
-      inputs:
-        script: 'ls -la'
+    
     - task: TerraformTaskV2@2
       displayName: Terraform Init
       inputs:
@@ -106,10 +103,10 @@ stages:
       inputs:
         connectionType: 'None'
         command: 'apply'
-        arguments: '-f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.47.0/deploy/static/provider/cloud/deploy.yaml'
+        arguments: '-f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.47.0/deploy/static/provider/cloud/deploy.yaml --wait true'
         secretType: 'dockerRegistry'
         containerRegistryType: 'Azure Container Registry'
-        outputFormat: 'yaml'
+        outputFormat: 'none'
     - task: Bash@3
       displayName: Add annotate to nginx-ingress-controller service
       inputs:
@@ -146,10 +143,21 @@ stages:
         chartType: 'Name'
         chartName: 'prometheus-community/kube-prometheus-stack'
         releaseName: 'prometheus'
-        valueFile: '$(System.DefaultWorkingDirectory)/k8s/graf/custom_values_grafana.yaml'
+        valueFile: '$(System.DefaultWorkingDirectory)/k8s/graf/custom_values_grafana_new.yaml'
         arguments: '--timeout 10m'
 
-
+    - task: AzureCLI@2
+      inputs:
+        azureSubscription: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
+        scriptType: 'bash'
+        scriptLocation: 'inlineScript'
+        inlineScript: |
+          #!/bin/bash
+          
+          export IP=$(kubectl get ingress -n grafana prometheus-grafana -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+          
+          az network dns record-set a delete --resource-group shell21 --zone-name vv.devops4.fun --name aks -y
+          az network dns record-set a add-record --resource-group shell21 --zone-name vv.devops4.fun --record-set-name aks --ipv4-address $IP
 
     - task: Bash@3
       displayName: Add Cert Magaer and patch ingress resource
@@ -199,5 +207,5 @@ stages:
       displayName: Patch Ingress route
       inputs:
         targetType: 'inline'
-        script: 'kubectl patch ingress -n grafana prometheus-grafana --patch-file patch_ingress.yaml'
+        script: 'kubectl patch ingress -n grafana prometheus-grafana --patch-file patch_ingress_new.yaml'
         workingDirectory: '$(System.DefaultWorkingDirectory)/k8s/graf/'
