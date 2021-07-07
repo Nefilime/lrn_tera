@@ -1,0 +1,203 @@
+pool:
+  vmImage: ubuntu-18.04
+stages:
+- stage: Preparation
+  displayName: Validation and Preparation Terraform
+  jobs:
+  - job: ''
+    displayName: init & plan Terraform
+    steps:
+    - task: TerraformInstaller@0
+      displayName: Install terraform
+      inputs:
+        terraformVersion: '1.0.0'
+    - task: CmdLine@2
+      displayName: List work dir
+      inputs:
+        script: 'ls -la'
+    - task: TerraformTaskV2@2
+      displayName: Terraform Init
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+        backendServiceArm: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
+        backendAzureRmResourceGroupName: 'shell21'
+        backendAzureRmStorageAccountName: 'shell21'
+        backendAzureRmContainerName: 'terraform'
+        backendAzureRmKey: 'terraform.tfstate'
+    - task: TerraformTaskV2@2
+      displayName: Terraform Plan
+      inputs:
+        provider: 'azurerm'
+        command: 'plan'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+        commandOptions: '-lock=false'
+        environmentServiceNameAzureRM: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
+    - task: TerraformTaskV2@2
+      inputs:
+        provider: 'azurerm'
+        command: 'validate'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+- stage: Deploy_terra
+  displayName: Deploy Infrastructure
+  jobs:
+  - job: ''
+    displayName: Terraform Apply
+    steps:
+    - task: TerraformInstaller@0
+      displayName: Install terraform
+      inputs:
+        terraformVersion: '1.0.0'
+    - task: TerraformTaskV2@2
+      displayName: Terraform Init
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+        backendServiceArm: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
+        backendAzureRmResourceGroupName: 'shell21'
+        backendAzureRmStorageAccountName: 'shell21'
+        backendAzureRmContainerName: 'terraform'
+        backendAzureRmKey: 'terraform.tfstate'
+    - task: TerraformTaskV2@2
+      displayName: Validate and Apply
+      inputs:
+        provider: 'azurerm'
+        command: 'apply'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+        environmentServiceNameAzureRM: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
+
+- stage: Deploy_grafa
+  displayName: Deploy Grafana
+  jobs:
+  - job: ''
+    displayName: Install Grafana
+    steps:
+    - task: TerraformInstaller@0
+      displayName: Install terraform
+      inputs:
+        terraformVersion: '1.0.0'
+    - task: TerraformTaskV2@2
+      displayName: Terraform Init
+      inputs:
+        provider: 'azurerm'
+        command: 'init'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+        backendServiceArm: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
+        backendAzureRmResourceGroupName: 'shell21'
+        backendAzureRmStorageAccountName: 'shell21'
+        backendAzureRmContainerName: 'terraform'
+        backendAzureRmKey: 'terraform.tfstate'
+    - task: Bash@3
+      displayName: Get kubernetes config
+      inputs:
+        targetType: 'inline'
+        script: |
+          mkdir $HOME/.kube
+          /opt/hostedtoolcache/terraform/1.0.0/x64/terraform output -raw kube_config > $HOME/.kube/config
+        workingDirectory: '$(System.DefaultWorkingDirectory)/k8s'
+    - task: HelmInstaller@0
+      inputs:
+        helmVersion: '2.14.1'
+        installKubectl: true
+    - task: Kubernetes@1
+      displayName: Applay nginx-ingress-controller
+      inputs:
+        connectionType: 'None'
+        command: 'apply'
+        arguments: '-f https://raw.githubusercontent.com/kubernetes/ingress-nginx/controller-v0.47.0/deploy/static/provider/cloud/deploy.yaml'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
+        outputFormat: 'yaml'
+    - task: Bash@3
+      displayName: Add annotate to nginx-ingress-controller service
+      inputs:
+        targetType: 'inline'
+        script: '/opt/hostedtoolcache/kubectl/1.21.2/x64/kubectl annotate service -n ingress-nginx ingress-nginx-controller service.beta.kubernetes.io/azure-dns-label-name=akscluster'
+        noProfile: false
+        noRc: false
+    
+    
+           
+
+    - task: Kubernetes@1
+      displayName: Create NameSpace grafana
+      inputs:
+        connectionType: 'None'
+        command: 'create'
+        arguments: 'ns grafana'
+        secretType: 'dockerRegistry'
+        containerRegistryType: 'Azure Container Registry'
+    - task: Bash@3
+      displayName: Add Grafana repo
+      inputs:
+        targetType: 'inline'
+        script: |
+          /opt/hostedtoolcache/helm/3.6.2/x64/linux-amd64/helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo update
+
+    - task: HelmDeploy@0
+      displayName: Install Grafana
+      inputs:
+        connectionType: 'None'
+        namespace: 'grafana'
+        command: 'upgrade'
+        chartType: 'Name'
+        chartName: 'prometheus-community/kube-prometheus-stack'
+        releaseName: 'prometheus'
+        valueFile: '$(System.DefaultWorkingDirectory)/k8s/graf/custom_values_grafana.yaml'
+        arguments: '--timeout 10m'
+
+
+
+    - task: Bash@3
+      displayName: Add Cert Magaer and patch ingress resource
+      inputs:
+         targetType: 'inline'
+         script: |
+           helm repo add jetstack https://charts.jetstack.io
+           
+           helm repo update
+
+    
+           
+           
+           helm install cert-manager jetstack/cert-manager \
+             --namespace ingress-nginx \
+             --set installCRDs=true \
+             --set nodeSelector."kubernetes\.io/os"=linux \
+             --set webhook.nodeSelector."kubernetes\.io/os"=linux \
+             --set cainjector.nodeSelector."kubernetes\.io/os"=linux \
+             --wait --timeout 10m
+           
+           
+
+           cat <<EOF | kubectl apply -f -
+           apiVersion: cert-manager.io/v1
+           kind: ClusterIssuer
+           metadata:
+             name: letsencrypt
+           spec:
+             acme:
+               server: https://acme-v02.api.letsencrypt.org/directory
+               email: woolfix@mail.ru
+               privateKeySecretRef:
+                 name: letsencrypt
+               solvers:
+               - http01:
+                   ingress:
+                     class: nginx
+                     podTemplate:
+                       spec:
+                         nodeSelector:
+                           "kubernetes.io/os": linux
+           
+           EOF
+
+    - task: Bash@3
+      displayName: Patch Ingress route
+      inputs:
+        targetType: 'inline'
+        script: 'kubectl patch ingress -n grafana prometheus-grafana --patch-file patch_ingress.yaml'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/k8s/graf/'
