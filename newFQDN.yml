@@ -112,7 +112,7 @@ stages:
       displayName: Wait ingress start
       inputs:
         targetType: 'inline'
-        script: 'kubectl wait -n ingress-nginx deploy/ingress-nginx-controller --for condition=available'
+        script: 'kubectl wait -n ingress-nginx deploy/ingress-nginx-controller --for condition=available --timeout=60s'
     - task: Bash@3
       displayName: Add annotate to nginx-ingress-controller service
       inputs:
