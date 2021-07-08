@@ -164,7 +164,7 @@ stages:
           export IP=$(kubectl get ingress -n grafana prometheus-grafana -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
 
           az network dns record-set a delete --resource-group shell21 --zone-name vv.devops4.fun --name aks -y
-          az network dns record-set a add-record --resource-group shell21 --zone-name vv.devops4.fun --record-set-name aks --ipv4-address $IP
+          az network dns record-set a add-record --resource-group shell21 --zone-name vv.devops4.fun --record-set-name aks --ipv4-address $IP --ttl 60
 
     - task: Bash@3
       displayName: Add Cert Magaer and patch ingress resource
@@ -216,7 +216,7 @@ stages:
         targetType: 'inline'
         script: 'kubectl patch ingress -n grafana prometheus-grafana --patch-file patch_ingress_new.yaml'
         workingDirectory: '$(System.DefaultWorkingDirectory)/k8s/graf/'
-    
+
     - task: Bash@3
       inputs:
         filePath: 'dash.sh'
