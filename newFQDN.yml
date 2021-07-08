@@ -216,3 +216,8 @@ stages:
         targetType: 'inline'
         script: 'kubectl patch ingress -n grafana prometheus-grafana --patch-file patch_ingress_new.yaml'
         workingDirectory: '$(System.DefaultWorkingDirectory)/k8s/graf/'
+    
+    - task: Bash@3
+      inputs:
+        filePath: 'dash.sh'
+        workingDirectory: '$(System.DefaultWorkingDirectory)/k8s/graf/'
