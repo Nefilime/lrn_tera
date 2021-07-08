@@ -219,5 +219,5 @@ stages:
 
     - task: Bash@3
       inputs:
-        filePath: 'dash.sh'
+        filePath: '$(System.DefaultWorkingDirectory)/k8s/graf/dash.sh'
         workingDirectory: '$(System.DefaultWorkingDirectory)/k8s/graf/'
