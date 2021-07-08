@@ -153,6 +153,7 @@ stages:
         arguments: '--timeout 10m'
 
     - task: AzureCLI@2
+      displayName: Update DNS record
       inputs:
         azureSubscription: 'Pay-As-You-Go (9f5e6f55-0b11-4062-9a61-94be3d06c950)'
         scriptType: 'bash'
