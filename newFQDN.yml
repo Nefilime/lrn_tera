@@ -137,7 +137,7 @@ stages:
       inputs:
         targetType: 'inline'
         script: |
-          /opt/hostedtoolcache/helm/3.6.2/x64/linux-amd64/helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+          helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
           helm repo update
 
     - task: HelmDeploy@0
