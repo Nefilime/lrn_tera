@@ -117,7 +117,7 @@ stages:
       displayName: Add annotate to nginx-ingress-controller service
       inputs:
         targetType: 'inline'
-        script: '/opt/hostedtoolcache/kubectl/1.21.2/x64/kubectl annotate service -n ingress-nginx ingress-nginx-controller service.beta.kubernetes.io/azure-dns-label-name=akscluster'
+        script: 'kubectl annotate service -n ingress-nginx ingress-nginx-controller service.beta.kubernetes.io/azure-dns-label-name=akscluster'
         noProfile: false
         noRc: false
 
